@@ -12,6 +12,7 @@ class AreaTablero(sprite.Sprite):
 		tablero.rect.center = self.rect.center
 		self.tableroCnt.add(tablero)
 		self.tableroCnt.draw(self.image)
+		print(sprite.groupcollide(tablero.celdas.filas[2], tablero.celdas.columnas[3], False, False))
 		self.actualizar = False
 
 class TableroCnt(sprite.GroupSingle):
@@ -120,6 +121,49 @@ class Celda(sprite.Sprite):
 				if group.actualizar:
 					group.Actualizar(self)
 				break
+
+class Snake(sprite.Group):
+	def __init__(self, tablero, items, longitud, direccion = 0):
+		import math
+		sprite.Group.__init__(self)
+		self.longitudBase = items * 2
+		self.longitud = longitud
+		self.direccion = direccion
+		self.items = items
+		self.celdas = math.ceil(self.getLongitud()/self.items)
+		self.tablero = tablero.celdas
+		celdaInicial = self.getCelda(self.getPosAndDireccionInit())
+		self.add(BloqueSerpiente(celdaInicial, 0, self.direccion, self.items, 0))
+		longitudRestante = self.getLongitud() - 1*self.items
+		for nCelda in range(1, self.celdas):
+			if self.direccion == 1:
+				siguiente = celdaInicial.getNext(3)
+			elif self.direccion == 3:
+				siguiente = celdaInicial.getNext(1)
+			elif self.direccion == 2:
+				siguiente = celdaInicial.getNext(4)
+			elif self.direccion == 4:
+				siguiente = celdaInicial.getNext(2)
+			self.add(BloqueSerpiente(siguiente, nCelda, self.direccion, longitudRestante))
+
+	def getLongitud(self):
+		return self.longitudBase + self.longitud
+
+	def getCelda(self, pos):
+		for celda in sprite.groupcollide(self.tablero.filas[pos[0]], self.tablero.columnas[pos[1]], False, False):
+			return celda
+		
+	def getPosAndDireccionInit(self, newDir = False):
+		if newDir: self.direccion = 0
+			self.direccion = 2
+		return (self.celdas, 0)
+
+	def posYDireccionList(self):
+		pass
+
+class BloqueSerpiente(sprite.Sprite):
+	def __init__(self, celda, pos, direccion, longitud, porcentaje):
+		sprite.Sprite.__init__(self)
 
 
 """ TEmporales """
