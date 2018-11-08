@@ -21,9 +21,11 @@ Nuestro proyecto esta dirigido a personas de todas las edades, la funcion del ju
 
 
 ## MANUAL DE INSTALACION Y USO: 
+
 INSTALACION DEL PROGRAMA:
 El usuario tendra que instalar los siguientes modulos de python:
 * Pygame y screeninfo.
 * A su vez tener instalada la version 3.6 de python. 
+
 USO DEL PROGRAMA:
 Para usar el programa solo tiene que ejecutar el archivo principal main.py 
