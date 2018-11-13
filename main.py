@@ -9,7 +9,7 @@ del monitor
 
 def main():
 	pygame.init()
-	ventana = pygame.display.set_mode(screen, (pygame.FULLSCREEN))
+	ventana = pygame.display.set_mode(screen) #, (pygame.FULLSCREEN))
 	pygame.display.set_caption("Snake Modo Usil")
 	clock = pygame.time.Clock()
 	manageEscenarios = EscenarioCnt(screen)

@@ -1,5 +1,5 @@
 from pygame import sprite, surface, time, Color, draw, Rect
-from game.Bloques import AreaTablero
+from game.Tableros import AreaTablero
 
 # Escenarios de Prueba
 class simpleEscenario(sprite.Sprite):
