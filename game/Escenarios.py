@@ -1,4 +1,4 @@
-from pygame import sprite, surface, time, Color, draw, Rect
+from pygame import sprite, surface, time, Color, draw, Rect, font
 from game.Tableros import AreaTablero
 
 # Escenarios de Prueba
@@ -16,23 +16,62 @@ class testEscenario(sprite.Sprite):
 
 ### FIN DE Escenarios de prueba
 class Escena(sprite.Group):
-	def __init__(self, screen, escena = "0"):
+	def __init__(self, screen, bgcolor, escena):
 		sprite.Group.__init__(self)
-		self.espacios = {"tablero": screen}
-		self.add(AreaTablero(self.espacios["tablero"], "green"))
+		self.escena = escena
+		self.espacios = {"tab": (screen, (0,0))}
+		self.add(AreaTablero(self.espacios["tab"][0], self.espacios["tab"][1], bgcolor, self.getEstructura()))
+
+	def getEstructura(self):
+		from game.Estructuras import Estructuras_Escenarios as StructSce
+		estructuras = StructSce
+		estructura = dict()
+		for escena in self.escena:
+			if ("color" in estructuras[escena]):
+				estructura["color"] = estructuras[escena]["color"]
+			if "celdas" in estructuras[escena]:
+				estructura["celdas"] = estructuras[escena]["celdas"]
+			if "vel" in estructuras[escena]:
+				estructura["vel"] = estructuras[escena]["vel"]
+			if "estructuras" in estructuras[escena]:
+				estructuras = estructuras[escena]["estructuras"]
+			else:
+				break
+		return estructura
+		
 
 class Escenario(sprite.Sprite):
-
 	def __init__(self, screen, escena = "0"):
 		sprite.Sprite.__init__(self)
-		self.code = "4"
+		self.code = 4
+		self.start = time.get_ticks()
 		self.subcode = escena
 		self.image = surface.Surface(screen)
-		self.escena = Escena(screen, escena)
+		from game.Estructuras import Fondos_de_escenas as Fondos
+		self.fondo = Fondos[self.getSubCodeList()[0]]
+		del Fondos
+		self.image.fill(Color(self.fondo))
+		self.escena = Escena(screen, self.fondo, self.getSubCodeList())
 		self.escena.draw(self.image)
 		self.rect = self.image.get_rect()
 		self.complete = True
 		self.actualizar = False
+
+	def getSubCodeList(self):
+		return tuple(map(lambda seccion: int(seccion), self.subcode.split(".")))
+	
+	def update(self):
+		self.escena.update(self.escena.pause)
+
+class ListaNivelEscenario(sprite.Sprite):
+	def __init__(self, screen):
+		sprite.Sprite.__init__(self)
+		self.code = 2
+		self.start = time.get_ticks()
+		self.image = surface.Surface(screen)
+		self.image.fill(Color("white"))
+		font.init()
+		self.label = font.Font.render("Niveles", True, Color("yellow"))
 
 class MenuEscenario(sprite.Sprite):
 	def __init__(self, screen):
@@ -54,7 +93,7 @@ class MenuEscenario(sprite.Sprite):
 		del rect
 		self.complete = True
 		self.actualizar = False
-		self.code = "1"
+		self.code = 1
 	def getCenterPlayButton(self):
 		return self.rect.center
 
@@ -69,7 +108,7 @@ class EscenarioInicio(sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.center = (int(screen[0]*0.5), int(screen[1]*0.5))
 		self.actualizar = False
-		self.code = "0"
+		self.code = 0
 
 	def update(self):
 		progress = (time.get_ticks() - self.start)/self.animation
@@ -97,9 +136,11 @@ class EscenarioCnt(sprite.GroupSingle):
 		self.nextEscenario = MenuEscenario(self.screen)
 		self.add(self.escenerio)
 		self.actualizar = False
+		self.forzarCambio = False
 
-	def changeEscenario(self, escenario):
+	def changeEscenario(self, escenario, forzar = False):
 		self.nextEscenario = escenario
+		if forzar: self.forzarCambio = True
 		self.timeNextScreen = 0
 
 	def ReRender(self, ventana):
@@ -108,17 +149,21 @@ class EscenarioCnt(sprite.GroupSingle):
 		if superficie.actualizar:
 			self.actualizar = True
 			superficie.actualizar = False
-		if superficie.complete:
-			if self.timeNextScreen >= 0 and self.timeInitScreen + self.timeNextScreen - time.get_ticks() < 0 and self.nextEscenario.complete:
+		if superficie.complete or self.forzarCambio:
+			if self.timeNextScreen >= 0 and self.timeInitScreen + self.timeNextScreen - time.get_ticks() <= 0 and self.nextEscenario.complete:
 				# self.add(self.nextEscenario)
+				if self.forzarCambio: self.forzarCambio = False
 				self.escenerio = self.nextEscenario
 				self.add(self.escenerio)
+				self.timeInitScreen = time.get_ticks()
+				self.escenerio.start = self.timeInitScreen
 				if isinstance(self.escenerio, MenuEscenario):
 					self.nextEscenario = testEscenario(self.screen)
 					self.timeNextScreen = -1
+				elif isinstance(self.escenerio, Escenario):
+					pass
 				else:
 					self.timeNextScreen = -1
-				self.timeInitScreen = time.get_ticks()
 				self.actualizar = True
 		if self.actualizar:
 			self.draw(ventana)

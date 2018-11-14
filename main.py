@@ -9,7 +9,7 @@ del monitor
 
 def main():
 	pygame.init()
-	ventana = pygame.display.set_mode(screen) #, (pygame.FULLSCREEN))
+	ventana = pygame.display.set_mode(screen, (pygame.FULLSCREEN))
 	pygame.display.set_caption("Snake Modo Usil")
 	clock = pygame.time.Clock()
 	manageEscenarios = EscenarioCnt(screen)
@@ -21,20 +21,24 @@ def main():
 			if event.type == pygame.QUIT:
 				exit()
 			if event.type == pygame.MOUSEBUTTONDOWN:
-				if manageEscenarios.escenerio.code == "1":
+				if manageEscenarios.escenerio.code == 1:
 					import math
 					x1, y1 = event.pos
 					x2, y2 = manageEscenarios.escenerio.getCenterPlayButton()
 					distance = math.hypot(x1 - x2, y1 - y2)
 					if distance <= manageEscenarios.escenerio.playButton.get_width()/2:
 						from game.Escenarios import Escenario
-						manageEscenarios.changeEscenario(Escenario(manageEscenarios.screen))
+						manageEscenarios.changeEscenario(Escenario(manageEscenarios.screen, "1"))
 						del Escenario
 					# if rect.collidepoint(event.pos):
 					# 	exit()
 
 			if event.type == pygame.KEYDOWN:
-				exit()
+				if event.key == 311:
+					pygame.display.toggle_fullscreen()
+				else:
+					print(event.key)
+					exit()
 			""" if event.type == pygame.KEYDOWN:
 				simple = simpleEscenario(manageEscenarios)
 				simple.image = pygame.Surface([300, 300])

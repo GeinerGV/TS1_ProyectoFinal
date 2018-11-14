@@ -4,14 +4,14 @@ from game.Bloques import BloqueSerpiente
 class Snake(sprite.Group):
 	longitudBase = "2"
 	defDirection = 2
-	def __init__(self, tablero, longitud, direccion = 0, velocidad = ["1", 1000], pos = None, inicio = 0):
+	def __init__(self, tablero, longitud, direccion = 0, velocidad = None, pos = None, inicio = 0):
 		sprite.Group.__init__(self)
 		self.tablero = tablero
 		self.direccion = self.defDirection if direccion == 0 else direccion
 		self.longitud = self.getLongitud(longitud)
 		self.inicioCelda = 0
 		self.getValInicioCelda(inicio)
-		self.velocidad = velocidad
+		self.velocidad = ["1", 1000] if velocidad == None else velocidad
 		if pos == None:
 			self.pos = [0, 0]
 		else:
@@ -20,7 +20,6 @@ class Snake(sprite.Group):
 		self.add(BloqueSerpiente(celda, 0, self.direccion, self.inicioCelda, self.getLongitud()))
 		restante = self.getLongitud() - (self.tablero.sizeCelda - self.inicioCelda)
 		for orden in range(1, self.getNumCeldas()):
-			print("direccion opuesta", self.getOpositeDireccion())
 			celda = celda.getNext(self.getOpositeDireccion())
 			self.add(BloqueSerpiente(celda, orden, self.direccion, 0, restante))
 			restante = restante - self.tablero.sizeCelda
